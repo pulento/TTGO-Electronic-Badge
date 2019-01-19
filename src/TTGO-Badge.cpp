@@ -102,8 +102,8 @@ const GFXfont *fonts[] = {
 #define BADGE_CONFIG_FILE_NAME "/badge.data"
 #define DEFALUT_AVATAR_BMP "/avatar.bmp"
 #define DEFALUT_QR_CODE_BMP "/qr.bmp"
-#define WIFI_SSID "xinyuan"
-#define WIFI_PASSWORD "12345678"
+#define WIFI_SSID "ssid"
+#define WIFI_PASSWORD "pass"
 
 typedef struct
 {
