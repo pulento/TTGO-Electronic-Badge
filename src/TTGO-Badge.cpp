@@ -344,11 +344,13 @@ void WebServerStart(void)
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  while (WiFi.waitForConnectResult() != WL_CONNECTED)
-  {
+  Serial.print("Connecting to: ");
+  Serial.println(WIFI_SSID);
+
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.print(".");
-    esp_restart();
   }
+
   Serial.println(F("WiFi connected"));
   Serial.println("");
   Serial.println(WiFi.localIP());
