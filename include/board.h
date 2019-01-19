@@ -1,5 +1,4 @@
 
-
 #define TTGO_T5_2_1 0
 #define TTGO_T5_2_2 1
 #define TTGO_T5_2_3 0

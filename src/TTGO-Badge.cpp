@@ -1,4 +1,5 @@
 // include library, include base class, make path known
+#include <Arduino.h>
 #include <GxEPD.h>
 #include <GxIO/GxIO_SPI/GxIO_SPI.cpp>
 #include <GxIO/GxIO.cpp>
@@ -62,7 +63,6 @@ const GFXfont *fonts[] = {
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
-
 #include <OneButton.h>
 
 // ----------->>>> SD
@@ -131,6 +131,10 @@ GxEPD_Class display(io, ELINK_RESET, ELINK_BUSY);
 OneButton button1(GPIO_NUM_38, true);
 OneButton button2(GPIO_NUM_37, true);
 OneButton button3(GPIO_NUM_39, true);
+
+void showMainPage(void);
+void displayInit(void);
+void drawBitmap(const char *filename, int16_t x, int16_t y, bool with_color);
 
 StaticJsonBuffer<512> jsonBuffer;
 Badge_Info_t info;
@@ -448,7 +452,7 @@ void WebServerStart(void)
       if (++pathIndex >= 2)
       {
         pathIndex = 0;
-        showMianPage();
+        showMainPage();
       }
     }
   });
@@ -462,7 +466,7 @@ void WebServerStart(void)
   server.begin();
 }
 
-void showMianPage(void)
+void showMainPage(void)
 {
   displayInit();
   display.fillScreen(GxEPD_WHITE);
@@ -506,7 +510,7 @@ void click2()
   Serial.printf("Show Num: %d font\n", i);
   i = ((i + 1) >= sizeof(fonts) / sizeof(fonts[0])) ? 0 : i + 1;
   display.setFont(fonts[i]);
-  showMianPage();
+  showMainPage();
 }
 
 void click3()
@@ -515,7 +519,7 @@ void click3()
   Serial.println("Button 3 click.");
   if (!index)
   {
-    showMianPage();
+    showMainPage();
     index = true;
   }
   else
@@ -779,7 +783,7 @@ void setup()
 
   if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED)
   {
-    showMianPage();
+    showMainPage();
   }
 
   WebServerStart();
