@@ -2,5 +2,5 @@
 .pioenvs
 .piolibdeps
 .vscode
+.DS_Store
 *~
-

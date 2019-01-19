@@ -97,8 +97,8 @@ const GFXfont *fonts[] = {
 #include "esp_wifi.h"
 #include "Esp.h"
 
-/*100 * 100 bmp fromat*/
-//https://www.onlineconverter.com/jpg-to-bmp
+// 100 * 100 bmp format
+// https://www.onlineconverter.com/jpg-to-bmp
 #define BADGE_CONFIG_FILE_NAME "/badge.data"
 #define DEFALUT_AVATAR_BMP "/avatar.bmp"
 #define DEFALUT_QR_CODE_BMP "/qr.bmp"
@@ -264,12 +264,12 @@ void saveBadgeInfo(Badge_Info_t *info)
 
 void loadDefaultInfo(void)
 {
-  strlcpy(info.company, "Xin Yuan Electronic", sizeof(info.company));
-  strlcpy(info.name, "Lilygo", sizeof(info.name));
-  strlcpy(info.address, "ShenZhen", sizeof(info.address));
-  strlcpy(info.email, "lily@lilygo.cc", sizeof(info.email));
-  strlcpy(info.link, "http://www.lilygo.cn", sizeof(info.link));
-  strlcpy(info.tel, "0755-83380665", sizeof(info.tel));
+  strlcpy(info.company, "Sentrica", sizeof(info.company));
+  strlcpy(info.name, "Pulento", sizeof(info.name));
+  strlcpy(info.address, "Santiago", sizeof(info.address));
+  strlcpy(info.email, "contact@sentrica.cl", sizeof(info.email));
+  strlcpy(info.link, "http://sentrica.cl", sizeof(info.link));
+  strlcpy(info.tel, "0569-83380665", sizeof(info.tel));
   saveBadgeInfo(&info);
 }
 
