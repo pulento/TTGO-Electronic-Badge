@@ -100,6 +100,8 @@ const GFXfont *fonts[] = {
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
 #define TIME_TO_SLEEP  15        /* Time ESP32 will go to sleep (in seconds) */
 
+RTC_DATA_ATTR int bootCount = 0;
+
 // 100 * 100 bmp format
 // https://www.onlineconverter.com/jpg-to-bmp
 #define BADGE_CONFIG_FILE_NAME "/badge.data"
@@ -223,6 +225,7 @@ void print_wakeup_reason()
     case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
     default : Serial.printf("Wakeup was not caused by DEEP SLEEP: %d\n", wakeup_reason); break;
   }
+  Serial.printf("Boot Count: %d\n", bootCount);
 }
 
 void displayText(const String &str, int16_t y, uint8_t alignment)
@@ -517,7 +520,7 @@ void click1()
 #else
   esp_sleep_enable_ext0_wakeup((gpio_num_t)BUTTON_1, LOW);
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
-  Serial.println("Going to sleep now");
+  Serial.println("Going to deep sleep now");
   delay(1000);
   esp_deep_sleep_start();
   Serial.println("This will never be printed");
@@ -775,6 +778,8 @@ void setup()
   delay(500);
 
   print_wakeup_reason();
+  bootCount++;
+
   Serial.println("Free Heap:" + String(ESP.getHeapSize()));
 
   SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
