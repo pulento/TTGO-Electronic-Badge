@@ -305,7 +305,7 @@ bool loadBadgeInfo(Badge_Info_t *info)
   File file = FILESYSTEM.open(BADGE_CONFIG_FILE_NAME);
   if (!file)
   {
-    Serial.println("Open Fial -->");
+    Serial.println("Open File -->");
     return false;
   }
   JsonObject &root = jsonBuffer.parseObject(file);
@@ -808,8 +808,7 @@ void setup()
     loadDefaultInfo();
   }
 
-  if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED)
-  {
+  if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED) {
     showMainPage();
   }
 
@@ -825,4 +824,5 @@ void loop()
   button1.tick();
   button2.tick();
   button3.tick();
+  delay(10);
 }
