@@ -32,18 +32,18 @@
 #include <Fonts/FreeSerifBoldItalic9pt7b.h>
 #include <Fonts/FreeSerifItalic9pt7b.h>
 
-//#define DEFALUT_FONT  FreeMono9pt7b
-// #define DEFALUT_FONT  FreeMonoBoldOblique9pt7b
-// #define DEFALUT_FONT FreeMonoBold9pt7b
-// #define DEFALUT_FONT FreeMonoOblique9pt7b
-#define DEFALUT_FONT FreeSans9pt7b
-// #define DEFALUT_FONT FreeSansBold9pt7b
-// #define DEFALUT_FONT FreeSansBoldOblique9pt7b
-// #define DEFALUT_FONT FreeSansOblique9pt7b
-// #define DEFALUT_FONT FreeSerif9pt7b
-// #define DEFALUT_FONT FreeSerifBold9pt7b
-// #define DEFALUT_FONT FreeSerifBoldItalic9pt7b
-// #define DEFALUT_FONT FreeSerifItalic9pt7b
+//#define DEFAULT_FONT  FreeMono9pt7b
+// #define DEFAULT_FONT  FreeMonoBoldOblique9pt7b
+// #define DEFAULT_FONT FreeMonoBold9pt7b
+// #define DEFAULT_FONT FreeMonoOblique9pt7b
+#define DEFAULT_FONT FreeSans9pt7b
+// #define DEFAULT_FONT FreeSansBold9pt7b
+// #define DEFAULT_FONT FreeSansBoldOblique9pt7b
+// #define DEFAULT_FONT FreeSansOblique9pt7b
+// #define DEFAULT_FONT FreeSerif9pt7b
+// #define DEFAULT_FONT FreeSerifBold9pt7b
+// #define DEFAULT_FONT FreeSerifBoldItalic9pt7b
+// #define DEFAULT_FONT FreeSerifItalic9pt7b
 
 const GFXfont *fonts[] = {
     &FreeMono9pt7b,
@@ -97,11 +97,14 @@ const GFXfont *fonts[] = {
 #include "esp_wifi.h"
 #include "Esp.h"
 
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  15        /* Time ESP32 will go to sleep (in seconds) */
+
 // 100 * 100 bmp format
 // https://www.onlineconverter.com/jpg-to-bmp
 #define BADGE_CONFIG_FILE_NAME "/badge.data"
-#define DEFALUT_AVATAR_BMP "/avatar.bmp"
-#define DEFALUT_QR_CODE_BMP "/qr.bmp"
+#define DEFAULT_AVATAR_BMP "/avatar.bmp"
+#define DEFAULT_QR_CODE_BMP "/qr.bmp"
 #define WIFI_SSID "ssid"
 #define WIFI_PASSWORD "pass"
 
@@ -128,9 +131,9 @@ AsyncWebServer server(80);
 GxIO_Class io(SPI, ELINK_SS, ELINK_DC, ELINK_RESET);
 GxEPD_Class display(io, ELINK_RESET, ELINK_BUSY);
 
-OneButton button1(GPIO_NUM_38, true);
-OneButton button2(GPIO_NUM_37, true);
-OneButton button3(GPIO_NUM_39, true);
+OneButton button1(BUTTON_1, true);
+OneButton button2(BUTTON_2, true);
+OneButton button3(BUTTON_3, true);
 
 void showMainPage(void);
 void displayInit(void);
@@ -143,7 +146,7 @@ static const uint16_t max_palette_pixels = 256;       // for depth <= 8
 uint8_t mono_palette_buffer[max_palette_pixels / 8];  // palette buffer for depth <= 8 b/w
 uint8_t color_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 c/w
 uint8_t input_buffer[3 * input_buffer_pixels];        // up to depth 24
-const char *path[2] = {DEFALUT_AVATAR_BMP, DEFALUT_QR_CODE_BMP};
+const char *path[2] = {DEFAULT_AVATAR_BMP, DEFAULT_QR_CODE_BMP};
 
 #ifdef __DEBUG
 
@@ -206,6 +209,21 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
   }
 }
 #endif
+
+void print_wakeup_reason()
+{
+  esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  switch(wakeup_reason)
+  {
+    case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+    case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
+    case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
+    case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
+    default : Serial.printf("Wakeup was not caused by DEEP SLEEP: %d\n", wakeup_reason); break;
+  }
+}
 
 void displayText(const String &str, int16_t y, uint8_t alignment)
 {
@@ -366,12 +384,12 @@ void WebServerStart(void)
   /*test png bmp*/
   server.on("/av", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("BMP");
-    request->send(FILESYSTEM, DEFALUT_AVATAR_BMP, "image/bmp");
+    request->send(FILESYSTEM, DEFAULT_AVATAR_BMP, "image/bmp");
   });
 
   server.on("/qr", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("png");
-    request->send(FILESYSTEM, DEFALUT_QR_CODE_BMP, "image/bmp");
+    request->send(FILESYSTEM, DEFAULT_QR_CODE_BMP, "image/bmp");
   });
   /*test png bmp*/
 
@@ -472,7 +490,7 @@ void showMainPage(void)
 {
   displayInit();
   display.fillScreen(GxEPD_WHITE);
-  drawBitmap(DEFALUT_AVATAR_BMP, 10, 10, true);
+  drawBitmap(DEFAULT_AVATAR_BMP, 10, 10, true);
   displayText(String(info.name), 30, RIGHT_ALIGNMENT);
   displayText(String(info.company), 50, RIGHT_ALIGNMENT);
   displayText(String(info.email), 70, RIGHT_ALIGNMENT);
@@ -484,7 +502,7 @@ void showQrPage(void)
 {
   displayInit();
   display.fillScreen(GxEPD_WHITE);
-  drawBitmap(DEFALUT_QR_CODE_BMP, 10, 10, true);
+  drawBitmap(DEFAULT_QR_CODE_BMP, 10, 10, true);
   displayText(String(info.tel), 50, RIGHT_ALIGNMENT);
   displayText(String(info.email), 70, RIGHT_ALIGNMENT);
   displayText(String(info.address), 90, RIGHT_ALIGNMENT);
@@ -497,9 +515,10 @@ void click1()
 #ifdef __DEBUG
   listDir(FILESYSTEM, "/", 2);
 #else
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_38, LOW);
+  esp_sleep_enable_ext0_wakeup((gpio_num_t)BUTTON_1, LOW);
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   Serial.println("Going to sleep now");
-  delay(2000);
+  delay(1000);
   esp_deep_sleep_start();
   Serial.println("This will never be printed");
 #endif
@@ -746,7 +765,7 @@ void displayInit(void)
   display.setRotation(1);
   display.eraseDisplay();
   display.setTextColor(GxEPD_BLACK);
-  display.setFont(&DEFALUT_FONT);
+  display.setFont(&DEFAULT_FONT);
   display.setTextSize(0);
 }
 
@@ -755,7 +774,8 @@ void setup()
   Serial.begin(115200);
   delay(500);
 
-  Serial.println("free heap:" + String(ESP.getHeapSize()));
+  print_wakeup_reason();
+  Serial.println("Free Heap:" + String(ESP.getHeapSize()));
 
   SPI.begin(SPI_CLK, SPI_MISO, SPI_MOSI, -1);
 

@@ -31,8 +31,8 @@
 #define SPI_CLK 18
 
 #define SDCARD_SS 13
-#define BUTTON_1 38
-#define BUTTON_2 37
+#define BUTTON_1 37
+#define BUTTON_2 38
 #define BUTTON_3 39
 
 #elif TTGO_T5_2_3
